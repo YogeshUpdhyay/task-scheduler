@@ -8,6 +8,7 @@ import (
 )
 
 const allocateResourceFuncName = "AllocateResourceToTask"
+const initializeTaskManagerFuncName = "InitializeTaskManager"
 
 func AllocateResourceToTask() error {
 	log.Debug().Msgf("%s: allocate resource to task", allocateResourceFuncName)
@@ -15,14 +16,23 @@ func AllocateResourceToTask() error {
 	return nil
 }
 
-func InitializeTaskManager() error {
+func InitializeTaskManager(resources []*entities.Resource) (*entities.DataCenter, error) {
+	// creating datacenter
+	log.Debug().Msgf("%s: creating one dc for the tasks", initializeTaskManagerFuncName)
 	dataCenterId := uuid.NewString()
-
 	dc := entities.DataCenter{
 		DataCenterId: dataCenterId,
 		Location:     "ap-south-1",
 		Resources:    []entities.Resource{},
 	}
+	log.Debug().Msgf("%s: dc creation complete", initializeTaskManagerFuncName)
 
-	return nil
+	// adding resources to data center
+	log.Debug().Msgf("%s: adding resources to the dc", initializeTaskManagerFuncName)
+	for _, resource := range resources {
+		dc.AddResource(resource)
+	}
+	log.Debug().Msgf("%s: resoruce addition completed", initializeTaskManagerFuncName)
+
+	return &dc, nil
 }

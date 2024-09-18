@@ -2,18 +2,19 @@ package main
 
 import (
 	"context"
-	"task-scheduler/constants"
-	"task-scheduler/utils/configs"
+	appConfig "task-scheduler/utils/context"
 	"task-scheduler/utils/logger"
 
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	// intialize logger
 	logger.InitLogger()
-	ctx := context.Background()
 
-	applicationName := configs.Get(ctx, constants.ApplicationConfig).GetString(constants.ApplicationNameKey)
-	ctx = context.WithValue(ctx, constants.ContextApplicationNameKey, applicationName)
+	// prepare application config
+	ctx := context.Background()
+	ctx = appConfig.IntializeContext(ctx)
+
 	log.Debug().Ctx(ctx).Msg("hi")
 }

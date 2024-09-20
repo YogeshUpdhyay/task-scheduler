@@ -15,3 +15,11 @@ var ConfigFiles = []string{
 const (
 	ServerInstanceResourceType = "SERVER_INSTANCE"
 )
+
+// resource object keys
+const (
+	ResourceIdKey        = "resourceid"
+	ResourceTypeKey      = "resourcetype"
+	ResourcePriceKey     = "price"
+	ResourceCPUConfigKey = "cpuconfig"
+)

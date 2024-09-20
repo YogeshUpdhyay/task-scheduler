@@ -1,2 +1,23 @@
 server:
     applicationName: task-scheduler
+
+taskManager:
+    dataCenter:
+        resources:
+            - 
+                resourceId: resourceOne
+                resourceType: SERVER_INSTANCE
+                price: 100
+                cpuConfig: 8
+            -
+                resourceId: resourceTwo
+                resourceType: SERVER_INSTANCE
+                price: 400
+                cpuConfig: 32
+            -
+                resourceId: resourceThree
+                resourceType: SERVER_INSTANCE
+                price: 200
+                cpuConfig: 16
+
+        

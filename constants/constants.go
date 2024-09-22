@@ -23,3 +23,5 @@ const (
 	ResourcePriceKey     = "price"
 	ResourceCPUConfigKey = "cpuconfig"
 )
+
+const StartCommand = "start"

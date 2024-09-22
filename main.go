@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
-	"task-scheduler/business"
-	"task-scheduler/constants"
-	"task-scheduler/entities"
-	"task-scheduler/utils/configs"
+	"sync"
+	"task-scheduler/internal/datacenter"
 	appConfig "task-scheduler/utils/context"
 	"task-scheduler/utils/logger"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,43 +19,30 @@ func main() {
 	ctx := context.Background()
 	ctx = appConfig.IntializeContext(ctx)
 
-	log.Info().Ctx(ctx).Msg("intializing task manager")
+	// bulding the data center
+	// TODO:
+	// to build the data center we require the data center which will house the resources for the process executions
+	// and the tasks that are to be executed on the data center
 
-	// fetching the avialable resources from the config
-	availableResources, err := getAvailableResource(ctx)
-	if err != nil {
-		log.Error().Ctx(ctx).Stack().Err(err).Msg("error getting available resources")
-		return
+	// building the data center
+	dataCenter := datacenter.DataCenter{
+		DataCenterId:     uuid.NewString(),
+		Location:         "ap-south-1",
+		Resources:        []*datacenter.Resource{},
+		Tasks:            []*datacenter.Task{},
+		ExecutionSummary: []*datacenter.ExecutionSummaryLog{},
 	}
 
-	// initializing task manager
-	taskManager, err := business.InitializeTaskManager(ctx, availableResources)
-	if err != nil {
-		log.Info().Ctx(ctx).Msg("error initializing the task manager")
-		return
-	}
+	// starting the data center this will make the data center start listening for the tasks
+	//  we will listening for the tasks on a different thread and the commands for adding and removing
+	// resource on a different thread hence we are using a wait group here to run them
 
-	log.Info().Ctx(ctx).Msg("task manager initialization complete")
+	var wg sync.WaitGroup
 
-	// prepare tasks based on the users input
+	// the data center runs till the po
+	wg.Add(1)
+	go dataCenter.Start(ctx, &wg)
+	wg.Wait()
 
-	// assign tasks to the task manager
-	taskManager.AddTask(&entities.Task{TaskID: "1", RequestedConfiguration: entities.TaskConfiguration{}})
-}
-
-// fetches avaiable resources from config
-func getAvailableResource(ctx context.Context) ([]*entities.Resource, error) {
-	availableResources := []*entities.Resource{}
-	resources := configs.Get(ctx, constants.ApplicationConfig).Get(constants.DataCenterResourcesKey).([]interface{})
-
-	for _, resource := range resources {
-		availableResources = append(availableResources, &entities.Resource{
-			ResourceId:   resource.(map[string]interface{})[constants.ResourceIdKey].(string),
-			ResourceType: resource.(map[string]interface{})[constants.ResourceTypeKey].(string),
-			Price:        resource.(map[string]interface{})[constants.ResourcePriceKey].(int),
-			CPUConfig:    resource.(map[string]interface{})[constants.ResourceCPUConfigKey].(int),
-		})
-	}
-
-	return availableResources, nil
+	log.Info().Ctx(ctx).Interface("logs", dataCenter.ExecutionSummary).Msg("execution summary")
 }

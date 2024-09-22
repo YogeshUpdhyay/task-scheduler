@@ -9,7 +9,6 @@ Task: Each task will be executed on a single/multiple SERVER_INSTANCE type of re
 
 Requirements P0
 All the below requirements are for a given data center.
-
 Provide an interface to add/delete different types of the resources to the data center.
 Provide an interface to see all the available resources based on the resource type and resource type specific configuration filter.
 e.g. SERVER_INSTANCE, 8 (cpu)
@@ -25,6 +24,7 @@ Satisfying minimum configuration requirements is important apart from these crit
 An interface to check the status of the task, resource allocated, start and end time.
 Handle error scenarios appropriately.
 Please remember: You are expected to write the system which mirrors production quality code, rather than just implementing these functions.
+
 Requirements P1
 Handle concurrency cases for different scenarios.
 If the resource is not available, Put the task in the waiting queue and wait for the resources to be available. Assign the task in FIFO manner based on their matching configuration to the free resource. You can choose to do a non-blocking task submit in this case.
@@ -40,8 +40,8 @@ Should you have any doubts, you are allowed to make appropriate assumptions, as 
 You are allowed to code on your favorite IDEs as long as you paste the code back into the tool within the allotted time frame.
 How you will be evaluated
 You are expected to write production quality code while implementing the requirements.
-We look for the following:
 
+We look for the following:
 Separation of concerns
 Abstractions
 Application of OO design principles

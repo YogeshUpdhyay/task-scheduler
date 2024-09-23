@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"task-scheduler/internal/datacenter"
 	appConfig "task-scheduler/utils/context"
@@ -26,23 +27,37 @@ func main() {
 
 	// building the data center
 	dataCenter := datacenter.DataCenter{
-		DataCenterId:     uuid.NewString(),
-		Location:         "ap-south-1",
-		Resources:        []*datacenter.Resource{},
-		Tasks:            []*datacenter.Task{},
-		ExecutionSummary: []*datacenter.ExecutionSummaryLog{},
+		DataCenterId: uuid.NewString(),
+		Location:     "ap-south-1",
+		Resources:    []*datacenter.Resource{},
+		Tasks:        []*datacenter.Task{},
 	}
 
-	// starting the data center this will make the data center start listening for the tasks
-	//  we will listening for the tasks on a different thread and the commands for adding and removing
-	// resource on a different thread hence we are using a wait group here to run them
+	// starting the data center
+	// this will make the data center start listening for the commands and processing the tasks
+	// we will listening for the commands on the main thread and process the tasks on a different thread
 
 	var wg sync.WaitGroup
 
-	// the data center runs till the po
+	// starting the task processing of the data center
 	wg.Add(1)
 	go dataCenter.Start(ctx, &wg)
-	wg.Wait()
 
+	for {
+		// if all tasks are executed then we can exit the command listening
+		if dataCenter.AreAllTasksExecuted(ctx) {
+			break
+		}
+
+		var command string
+		_, err := fmt.Scanln(&command)
+
+		if err != nil {
+			log.Fatal().Ctx(ctx).Msg("error scanning for the command")
+		}
+
+	}
+
+	wg.Wait()
 	log.Info().Ctx(ctx).Interface("logs", dataCenter.ExecutionSummary).Msg("execution summary")
 }

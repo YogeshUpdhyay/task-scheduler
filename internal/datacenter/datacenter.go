@@ -92,3 +92,8 @@ func (dc *DataCenter) Start(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 	dc.ExecutionSummary = append(dc.ExecutionSummary, &ExecutionSummaryLog{TaskStatus: "Completed"})
 }
+
+func (dc *DataCenter) AreAllTasksExecuted(ctx context.Context) bool {
+	// checks if all the tasks are executed
+	return false
+}

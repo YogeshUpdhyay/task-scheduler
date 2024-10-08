@@ -2,6 +2,8 @@ package datacenter
 
 import (
 	"context"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -16,6 +18,7 @@ type DataCenter struct {
 	ResourcesLock sync.RWMutex
 	Resources     []*Resource `json:"resources"`
 
+	TasksLock        sync.RWMutex
 	Tasks            []*Task
 	ExecutionSummary []*ExecutionSummaryLog
 }
@@ -28,10 +31,38 @@ type Resource struct {
 	IsAllocated  bool   `json:"isAllocated"`
 }
 
+func (r *Resource) FromCommandArgString(ctx context.Context, commandString string) {
+	parts := strings.Split(commandString, " ")
+
+	price, err := strconv.Atoi(parts[1])
+	if err != nil {
+		log.Fatal().Ctx(ctx).Msg("error parsing price to int")
+	}
+
+	cpuConfig, err := strconv.Atoi(parts[2])
+	if err != nil {
+		log.Fatal().Ctx(ctx).Msg("error parsing cpu config to int")
+	}
+
+	r.ResourceType, r.Price, r.CPUConfig, r.IsAllocated = parts[0], price, cpuConfig, false
+}
+
 type Task struct {
 	TaskId       string
 	ResourceType string
 	CpuConfig    int
+}
+
+// creating a task from the command string
+func (t *Task) FromCommandArgString(ctx context.Context, commandString string) {
+	parts := strings.Split(commandString, " ")
+
+	// parse cpu config
+	cpuConfig, err := strconv.Atoi(parts[2])
+	if err != nil {
+		log.Fatal().Ctx(ctx).Msg("error invalid cpu config")
+	}
+	t.TaskId, t.ResourceType, t.CpuConfig = parts[0], parts[1], cpuConfig
 }
 
 type ExecutionSummaryLog struct {
@@ -96,4 +127,11 @@ func (dc *DataCenter) Start(ctx context.Context, wg *sync.WaitGroup) {
 func (dc *DataCenter) AreAllTasksExecuted(ctx context.Context) bool {
 	// checks if all the tasks are executed
 	return false
+}
+
+func (dc *DataCenter) AddTask(task *Task) {
+	// get lock on the tasks and update the task list
+	dc.TasksLock.Lock()
+	dc.Tasks = append(dc.Tasks, task)
+	dc.TasksLock.Unlock()
 }

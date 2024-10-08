@@ -25,3 +25,11 @@ const (
 )
 
 const StartCommand = "start"
+
+// task scheduler commands
+const (
+	AddTask        = "ADD_TASK"
+	AddResource    = "ADD_RESOURCE"
+	DeleteResource = "REMOVE_RESOURCE"
+	ListResources  = "LIST_RESOURCES"
+)

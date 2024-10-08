@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
+	"task-scheduler/constants"
 	"task-scheduler/internal/datacenter"
 	appConfig "task-scheduler/utils/context"
 	"task-scheduler/utils/logger"
@@ -49,11 +51,37 @@ func main() {
 			break
 		}
 
+		// command for the data center to process
 		var command string
 		_, err := fmt.Scanln(&command)
 
 		if err != nil {
 			log.Fatal().Ctx(ctx).Msg("error scanning for the command")
+		}
+
+		parts := strings.SplitN(command, " ", 2)
+		commandType := parts[0]
+		commandArgs := parts[1]
+
+		switch commandType {
+		case constants.AddTask:
+			// get task from the command args
+			task := datacenter.Task{}
+			task.FromCommandArgString(ctx, commandArgs)
+
+			// add task to the dc
+			dataCenter.AddTask(&task)
+		case constants.AddResource:
+			resource := datacenter.Resource{}
+			resource.FromCommandArgString(ctx, commandArgs)
+
+			// add resource to the dc
+			resourceId := dataCenter.AddResource(ctx, &resource)
+			log.Info().Ctx(ctx).Msgf("resource added to the dc: %s", resourceId)
+		case constants.DeleteResource:
+			// delete
+		default:
+			log.Fatal().Ctx(ctx).Msg("error invalid task")
 		}
 
 	}

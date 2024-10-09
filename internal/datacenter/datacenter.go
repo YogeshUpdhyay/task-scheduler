@@ -55,12 +55,12 @@ type Task struct {
 
 // creating a task from the command string
 func (t *Task) FromCommandArgString(ctx context.Context, commandString string) {
-	parts := strings.Split(commandString, " ")
+	parts := strings.Split(strings.TrimSpace(commandString), " ")
 
 	// parse cpu config
 	cpuConfig, err := strconv.Atoi(parts[2])
 	if err != nil {
-		log.Fatal().Ctx(ctx).Msg("error invalid cpu config")
+		log.Fatal().Ctx(ctx).Msgf("error invalid cpu config %s", err.Error())
 	}
 	t.TaskId, t.ResourceType, t.CpuConfig = parts[0], parts[1], cpuConfig
 }

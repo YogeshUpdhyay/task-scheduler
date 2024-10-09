@@ -1,8 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"context"
-	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"task-scheduler/constants"
@@ -45,6 +46,8 @@ func main() {
 	wg.Add(1)
 	go dataCenter.Start(ctx, &wg)
 
+	log.Info().Ctx(ctx).Msg("task manager started")
+
 	for {
 		// if all tasks are executed then we can exit the command listening
 		if dataCenter.AreAllTasksExecuted(ctx) {
@@ -53,11 +56,10 @@ func main() {
 		}
 
 		// command for the data center to process
-		var command string
-		_, err := fmt.Scanln(&command)
-
+		reader := bufio.NewReader(os.Stdin)
+		command, err := reader.ReadString('\n')
 		if err != nil {
-			log.Fatal().Ctx(ctx).Msg("error scanning for the command")
+			log.Fatal().Ctx(ctx).Msgf("error scanning for the command %s", err.Error())
 		}
 
 		parts := strings.SplitN(command, " ", 2)

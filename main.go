@@ -48,6 +48,7 @@ func main() {
 	for {
 		// if all tasks are executed then we can exit the command listening
 		if dataCenter.AreAllTasksExecuted(ctx) {
+			log.Info().Ctx(ctx).Msg("all tasks executed successfully")
 			break
 		}
 
@@ -71,6 +72,7 @@ func main() {
 
 			// add task to the dc
 			dataCenter.AddTask(&task)
+			log.Info().Ctx(ctx).Msg("task added to the dc")
 		case constants.AddResource:
 			resource := datacenter.Resource{}
 			resource.FromCommandArgString(ctx, commandArgs)
@@ -79,7 +81,16 @@ func main() {
 			resourceId := dataCenter.AddResource(ctx, &resource)
 			log.Info().Ctx(ctx).Msgf("resource added to the dc: %s", resourceId)
 		case constants.DeleteResource:
-			// delete
+			// delete resource from id
+			resourceId := commandArgs
+
+			if ok := dataCenter.DeleteResource(ctx, resourceId); !ok {
+				log.Debug().Ctx(ctx).Msgf("error deleting the resource with id %s", resourceId)
+			}
+			log.Info().Ctx(ctx).Msg("resource deleted successfully.")
+		case constants.ListResources:
+			tasks := datacenter.Task{}
+			log.Info().Ctx(ctx).Interface("tasks", tasks).Msg("tasks available")
 		default:
 			log.Fatal().Ctx(ctx).Msg("error invalid task")
 		}
@@ -87,5 +98,6 @@ func main() {
 	}
 
 	wg.Wait()
+
 	log.Info().Ctx(ctx).Interface("logs", dataCenter.ExecutionSummary).Msg("execution summary")
 }

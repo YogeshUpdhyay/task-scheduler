@@ -121,6 +121,8 @@ func (dc *DataCenter) DeleteResource(ctx context.Context, resourceId string) boo
 
 func (dc *DataCenter) Start(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
+
+	time.Sleep(2 * time.Minute)
 	dc.ExecutionSummary = append(dc.ExecutionSummary, &ExecutionSummaryLog{TaskStatus: "Completed"})
 }
 
